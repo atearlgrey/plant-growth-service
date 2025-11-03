@@ -1,4 +1,4 @@
-package com.example.plant_growth_service.controller;
+package com.idc.plantgrowth.controller;
 
 import jakarta.annotation.security.PermitAll;
 import org.springframework.web.bind.annotation.GetMapping;
