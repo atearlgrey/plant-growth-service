@@ -1,4 +1,4 @@
-package com.example.plant_growth_service.config;
+package com.idc.plantgrowth.infrastructure.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
@@ -63,10 +63,10 @@ public class SecurityConfig {
         return (HttpServletRequest request) -> {
             String token = extractToken(request);
             if (token != null && token.split("\\.").length == 3) {
-                // Có 3 phần: JWT
+                // Có 3 phần => JWT
                 return jwtAuthManager;
             }
-            // Còn lại: Opaque
+            // Còn lại => Opaque
             return opaqueAuthManager;
         };
     }
