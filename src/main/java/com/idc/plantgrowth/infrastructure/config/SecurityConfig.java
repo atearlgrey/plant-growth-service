@@ -17,6 +17,19 @@ import org.springframework.security.oauth2.server.resource.introspection.NimbusO
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.security.web.SecurityFilterChain;
 
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoders;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtValidators;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
+import org.springframework.security.oauth2.jwt.JwtValidationException;
+
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -54,19 +67,22 @@ public class SecurityConfig {
      */
     @Bean
     public AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver() {
-        JwtDecoder jwtDecoder = JwtDecoders.fromIssuerLocation(issuerUri);
-        AuthenticationManager jwtAuthManager = new ProviderManager(new JwtAuthenticationProvider(jwtDecoder));
+        NimbusJwtDecoder jwtDecoder = (NimbusJwtDecoder)JwtDecoders.fromIssuerLocation(issuerUri);
 
+        // Check audience
+        jwtDecoder.setJwtValidator(audienceValidator(clientId));
+
+        AuthenticationManager jwtAuthManager = new ProviderManager(new JwtAuthenticationProvider(jwtDecoder));
         OpaqueTokenIntrospector introspector = new NimbusOpaqueTokenIntrospector(introspectionUri, clientId, clientSecret);
         AuthenticationManager opaqueAuthManager = new ProviderManager(new OpaqueTokenAuthenticationProvider(introspector));
 
         return (HttpServletRequest request) -> {
             String token = extractToken(request);
             if (token != null && token.split("\\.").length == 3) {
-                // Có 3 phần => JWT
+                // JWT
                 return jwtAuthManager;
             }
-            // Còn lại => Opaque
+            // Opaque
             return opaqueAuthManager;
         };
     }
@@ -77,5 +93,18 @@ public class SecurityConfig {
             return header.substring(7);
         }
         return null;
+    }
+
+    private OAuth2TokenValidator<Jwt> audienceValidator(String expectedAudience) {
+        return token -> {
+            List<String> audiences = token.getAudience();
+            if (audiences != null && audiences.contains(expectedAudience)) {
+                // Hợp lệ
+                return OAuth2TokenValidatorResult.success();
+            }
+            // Sai audience
+            OAuth2Error error = new OAuth2Error("invalid_token", "The required audience is missing", null);
+            return OAuth2TokenValidatorResult.failure(error);
+        };
     }
 }
