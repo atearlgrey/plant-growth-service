@@ -1,4 +1,4 @@
-package com.idc.plantgrowth.controller;
+package com.idc.plantgrowth.interfaces.controller;
 
 import jakarta.annotation.security.PermitAll;
 import org.springframework.web.bind.annotation.GetMapping;
