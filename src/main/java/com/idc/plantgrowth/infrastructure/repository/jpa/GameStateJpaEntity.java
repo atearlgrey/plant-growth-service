@@ -10,8 +10,8 @@ import java.util.UUID;
 
 @Entity
 @Table(
-    name = "game_state",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "game_id"})
+        name = "game_state",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "game_id"})
 )
 @Getter
 @Setter

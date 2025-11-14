@@ -7,6 +7,8 @@ import java.util.UUID;
 
 public interface GameStateRepository {
     Optional<GameState> findByUserIdAndGameId(UUID userId, UUID gameId);
+
     GameState save(GameState state);
+
     void deleteById(UUID id);
 }

@@ -3,7 +3,6 @@ package com.idc.plantgrowth.infrastructure.repository;
 import com.idc.plantgrowth.domain.model.entity.GameState;
 import com.idc.plantgrowth.domain.repository.GameStateRepository;
 import com.idc.plantgrowth.infrastructure.mapper.GameStateInfraMapper;
-import com.idc.plantgrowth.infrastructure.repository.jpa.GameStateJpaEntity;
 import com.idc.plantgrowth.infrastructure.repository.jpa.GameStateJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;

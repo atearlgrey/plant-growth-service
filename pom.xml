@@ -20,6 +20,7 @@
 		<java.version>21</java.version>
 		<mapstruct.version>1.5.5.Final</mapstruct.version>
 		<lombok.version>1.18.32</lombok.version>
+		<swagger.version>2.6.0</swagger.version>
 	</properties>
 
 	<dependencies>
@@ -74,6 +75,13 @@
 			<artifactId>lombok</artifactId>
 			<version>${lombok.version}</version>
 			<scope>provided</scope>
+		</dependency>
+
+		<!-- Swagger -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>${swagger.version}</version>
 		</dependency>
 
 		<!-- Testing -->
