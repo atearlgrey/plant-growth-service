@@ -1,5 +1,6 @@
 package com.idc.plantgrowth.infrastructure.config;
 
+import com.idc.plantgrowth.infrastructure.logging.TraceIdFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -41,8 +42,9 @@ public class SecurityConfig {
     private String clientSecret;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, TraceIdFilter traceIdFilter) throws Exception {
         http
+                .addFilterBefore(traceIdFilter, org.springframework.security.web.context.SecurityContextHolderFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/public/**",
