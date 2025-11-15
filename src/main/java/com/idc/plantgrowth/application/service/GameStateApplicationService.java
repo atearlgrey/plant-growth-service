@@ -2,6 +2,8 @@ package com.idc.plantgrowth.application.service;
 
 import com.idc.plantgrowth.application.command.CreateGameStateCommand;
 import com.idc.plantgrowth.application.command.UpdateGameStateCommand;
+import com.idc.plantgrowth.domain.exception.BusinessException;
+import com.idc.plantgrowth.domain.model.common.ErrorCode;
 import com.idc.plantgrowth.domain.model.entity.GameState;
 import com.idc.plantgrowth.domain.repository.GameStateRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +21,10 @@ public class GameStateApplicationService {
 
     public GameState get(UUID userId, UUID gameId) {
         return repository.findByUserIdAndGameId(userId, gameId)
-                .orElseThrow(() -> new RuntimeException("State not found"));
+                .orElseThrow(() -> new BusinessException(
+                        ErrorCode.NOT_FOUND,
+                        "Game state not found for this user/game"
+                ));
     }
 
     public Page<GameState> getAll(int page, int size) {
@@ -40,13 +45,23 @@ public class GameStateApplicationService {
 
     public GameState update(UpdateGameStateCommand cmd) {
         var existing = repository.findByUserIdAndGameId(cmd.userId(), cmd.gameId())
-                .orElseThrow(() -> new RuntimeException("State not found"));
+                .orElseThrow(() -> new BusinessException(
+                        ErrorCode.NOT_FOUND,
+                        "Game state not found for this user/game"
+                ));
 
         existing.updateState(cmd.newStateJson());
         return repository.save(existing);
     }
 
     public void delete(UUID id) {
+        if (!repository.existsById(id)) {
+            throw new BusinessException(
+                    ErrorCode.NOT_FOUND,
+                    "Game state not found"
+            );
+        }
+
         repository.deleteById(id);
     }
 

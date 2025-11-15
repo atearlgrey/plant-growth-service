@@ -1,5 +1,6 @@
 package com.idc.plantgrowth.interfaces.exception;
 
+import com.idc.plantgrowth.domain.exception.BaseException;
 import com.idc.plantgrowth.domain.model.common.ErrorCode;
 import com.idc.plantgrowth.interfaces.common.ApiResponse;
 import com.idc.plantgrowth.interfaces.common.ApiResponseFactory;
@@ -58,30 +59,26 @@ public class GlobalExceptionHandler {
         return ApiResponseFactory.error(ErrorCode.VALIDATION_FAILED, msg.toString());
     }
 
+    @ExceptionHandler(BaseException.class)
+    public ApiResponse<?> handleBusiness(BaseException ex) {
+        return ApiResponseFactory.error(
+                ex.getErrorCode(),
+                ex.getMessage()
+        );
+    }
+
     /**
      * Những exception còn lại → chỉ return JSON khi request là API
      */
     @ExceptionHandler(Exception.class)
     public Object handleGeneric(Exception ex, HttpServletRequest req) {
-
         String accept = req.getHeader("Accept");
-        String uri = req.getRequestURI();
 
-        // Nếu là request HTML hoặc static resource → trả về error mặc định (HTML)
-        boolean isHtmlRequest =
-                (accept != null && accept.contains("text/html"))
-                        || uri.startsWith("/swagger-ui")
-                        || uri.startsWith("/webjars")
-                        || uri.startsWith("/v3/api-docs");
-
-        if (isHtmlRequest) {
-            // Không dùng RuntimeException(ex) → trả về lại exception gốc để Spring xử lý
+        if (accept != null && accept.contains("text/html")) {
             throw new RuntimeException(ex);
         }
 
-        // API request → return JSON
-        log.error("Unhandled exception at {}: {}", uri, ex.getMessage(), ex);
-
+        log.error("Unhandled exception", ex);
         return ApiResponseFactory.error(ErrorCode.INTERNAL_ERROR, ex.getMessage());
     }
 }

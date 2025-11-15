@@ -10,9 +10,13 @@ import java.util.UUID;
 public interface GameStateRepository {
     Page<GameState> findAll(Pageable pageable);
 
+    Optional<GameState> findById(UUID id);
+
     Optional<GameState> findByUserIdAndGameId(UUID userId, UUID gameId);
 
     GameState save(GameState state);
+
+    boolean existsById(UUID id);
 
     void deleteById(UUID id);
 }

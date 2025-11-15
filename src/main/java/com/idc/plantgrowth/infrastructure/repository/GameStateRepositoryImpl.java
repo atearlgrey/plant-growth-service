@@ -25,6 +25,11 @@ public class GameStateRepositoryImpl implements GameStateRepository {
     }
 
     @Override
+    public Optional<GameState> findById(UUID id) {
+        return gameStateJpaRepository.findById(id).map(mapper::toDomain);
+    }
+
+    @Override
     public Optional<GameState> findByUserIdAndGameId(UUID userId, UUID gameId) {
         return gameStateJpaRepository.findByUserIdAndGameId(userId, gameId).map(mapper::toDomain);
     }
@@ -34,6 +39,11 @@ public class GameStateRepositoryImpl implements GameStateRepository {
         var gameStateJpa = mapper.toJpa(state);
         var saveResult = gameStateJpaRepository.save(gameStateJpa);
         return mapper.toDomain(saveResult);
+    }
+
+    @Override
+    public boolean existsById(UUID id) {
+        return gameStateJpaRepository.existsById(id);
     }
 
     @Override
