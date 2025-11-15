@@ -5,6 +5,8 @@ import com.idc.plantgrowth.domain.repository.GameStateRepository;
 import com.idc.plantgrowth.infrastructure.mapper.GameStateInfraMapper;
 import com.idc.plantgrowth.infrastructure.repository.jpa.GameStateJpaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -16,6 +18,11 @@ public class GameStateRepositoryImpl implements GameStateRepository {
 
     private final GameStateJpaRepository gameStateJpaRepository;
     private final GameStateInfraMapper mapper;
+
+    @Override
+    public Page<GameState> findAll(Pageable pageable) {
+        return gameStateJpaRepository.findAll(pageable).map(mapper::toDomain);
+    }
 
     @Override
     public Optional<GameState> findByUserIdAndGameId(UUID userId, UUID gameId) {

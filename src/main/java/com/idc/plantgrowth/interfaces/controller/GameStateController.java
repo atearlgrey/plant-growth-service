@@ -3,6 +3,8 @@ package com.idc.plantgrowth.interfaces.controller;
 import com.idc.plantgrowth.application.command.CreateGameStateCommand;
 import com.idc.plantgrowth.application.command.UpdateGameStateCommand;
 import com.idc.plantgrowth.application.service.GameStateApplicationService;
+import com.idc.plantgrowth.domain.model.entity.GameState;
+import com.idc.plantgrowth.interfaces.common.ApiPagedResponse;
 import com.idc.plantgrowth.interfaces.common.ApiResponse;
 import com.idc.plantgrowth.interfaces.common.ApiResponseFactory;
 import com.idc.plantgrowth.interfaces.dto.GameStateDto;
@@ -13,8 +15,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -25,6 +29,44 @@ public class GameStateController {
 
     private final GameStateApplicationService service;
     private final GameStateDtoMapper gameStateDtoMapper;
+
+    @GetMapping
+    public ApiPagedResponse<GameStateDto> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<GameState> p = service.getAll(page, size);
+
+        List<GameStateDto> result = p.getContent().stream()
+                .map(gameStateDtoMapper::toDto)
+                .toList();
+
+        return ApiResponseFactory.paged(result, page, size, p.getTotalElements());
+    }
+
+    @Operation(
+            summary = "Lấy game state",
+            description = "Lấy trạng thái game theo User ID và Game ID (ví dụ game: plant-growth).",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "Lấy thành công",
+                            content = @Content(schema = @Schema(implementation = GameStateDto.class))
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Không tìm thấy"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Lỗi hệ thống")
+            }
+    )
+    @GetMapping("/{userId}/{gameId}")
+    public ApiResponse<GameStateDto> get(
+            @Parameter(description = "User ID cần lấy state", required = true)
+            @PathVariable UUID userId,
+            @Parameter(description = "Game ID", required = true)
+            @PathVariable UUID gameId
+    ) {
+        var result = service.get(userId, gameId);
+        return ApiResponseFactory.success(gameStateDtoMapper.toDto(result));
+    }
 
     @Operation(
             summary = "Tạo mới game state",
@@ -75,30 +117,6 @@ public class GameStateController {
             @RequestBody UpdateGameStateCommand cmd
     ) {
         var result = service.update(cmd);
-        return ApiResponseFactory.success(gameStateDtoMapper.toDto(result));
-    }
-
-    @Operation(
-            summary = "Lấy game state",
-            description = "Lấy trạng thái game theo User ID và Game ID (ví dụ game: plant-growth).",
-            responses = {
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                            responseCode = "200",
-                            description = "Lấy thành công",
-                            content = @Content(schema = @Schema(implementation = GameStateDto.class))
-                    ),
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Không tìm thấy"),
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Lỗi hệ thống")
-            }
-    )
-    @GetMapping("/{userId}/{gameId}")
-    public ApiResponse<GameStateDto> get(
-            @Parameter(description = "User ID cần lấy state", required = true)
-            @PathVariable UUID userId,
-            @Parameter(description = "Game ID", required = true)
-            @PathVariable UUID gameId
-    ) {
-        var result = service.get(userId, gameId);
         return ApiResponseFactory.success(gameStateDtoMapper.toDto(result));
     }
 

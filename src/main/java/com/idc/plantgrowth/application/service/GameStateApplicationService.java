@@ -5,6 +5,9 @@ import com.idc.plantgrowth.application.command.UpdateGameStateCommand;
 import com.idc.plantgrowth.domain.model.entity.GameState;
 import com.idc.plantgrowth.domain.repository.GameStateRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -13,6 +16,16 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class GameStateApplicationService {
     private final GameStateRepository repository;
+
+    public GameState get(UUID userId, UUID gameId) {
+        return repository.findByUserIdAndGameId(userId, gameId)
+                .orElseThrow(() -> new RuntimeException("State not found"));
+    }
+
+    public Page<GameState> getAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return repository.findAll(pageable);
+    }
 
     public GameState create(CreateGameStateCommand cmd) {
         GameState state = new GameState(
@@ -37,8 +50,4 @@ public class GameStateApplicationService {
         repository.deleteById(id);
     }
 
-    public GameState get(UUID userId, UUID gameId) {
-        return repository.findByUserIdAndGameId(userId, gameId)
-                .orElseThrow(() -> new RuntimeException("State not found"));
-    }
 }

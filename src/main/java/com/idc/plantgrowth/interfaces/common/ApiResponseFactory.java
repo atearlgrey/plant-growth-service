@@ -6,8 +6,35 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.time.Instant;
+import java.util.List;
 
 public class ApiResponseFactory {
+
+    public static <T> ApiPagedResponse<T> paged(
+            List<T> items,
+            int page,
+            int size,
+            long totalItems
+    ) {
+        int totalPages = (int) Math.ceil((double) totalItems / size);
+
+        return ApiPagedResponse.<T>builder()
+                .success(true)
+                .code(ErrorCode.OK.getCode())
+                .message(ErrorCode.OK.getDefaultMessage())
+                .data(ApiPagedResponse.PagedData.<T>builder()
+                        .items(items)
+                        .page(page)
+                        .size(size)
+                        .totalItems(totalItems)
+                        .totalPages(totalPages)
+                        .hasNext(page < totalPages - 1)
+                        .hasPrevious(page > 0)
+                        .build()
+                )
+                .metadata(buildMetadata())
+                .build();
+    }
 
     public static <T> ApiResponse<T> success(T data) {
         return ApiResponse.<T>builder()
