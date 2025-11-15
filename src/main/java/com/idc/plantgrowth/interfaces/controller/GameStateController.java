@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
@@ -88,7 +89,7 @@ public class GameStateController {
                     required = true,
                     content = @Content(schema = @Schema(implementation = CreateGameStateCommand.class))
             )
-            @RequestBody CreateGameStateCommand cmd
+            @Valid @RequestBody CreateGameStateCommand cmd
     ) {
         var result = service.create(cmd);
         return ApiResponseFactory.success(gameStateDtoMapper.toDto(result));
@@ -114,7 +115,7 @@ public class GameStateController {
                     required = true,
                     content = @Content(schema = @Schema(implementation = UpdateGameStateCommand.class))
             )
-            @RequestBody UpdateGameStateCommand cmd
+            @Valid @RequestBody UpdateGameStateCommand cmd
     ) {
         var result = service.update(cmd);
         return ApiResponseFactory.success(gameStateDtoMapper.toDto(result));

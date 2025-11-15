@@ -35,22 +35,22 @@ public class GameStateApplicationService {
     public GameState create(CreateGameStateCommand cmd) {
         GameState state = new GameState(
                 UUID.randomUUID(),
-                cmd.userId(),
-                cmd.gameId(),
-                cmd.sceneId(),
-                cmd.stateJson()
+                cmd.getUserId(),
+                cmd.getGameId(),
+                cmd.getSceneId(),
+                cmd.getStateJson()
         );
         return repository.save(state);
     }
 
     public GameState update(UpdateGameStateCommand cmd) {
-        var existing = repository.findByUserIdAndGameId(cmd.userId(), cmd.gameId())
+        var existing = repository.findByUserIdAndGameId(cmd.getUserId(), cmd.getGameId())
                 .orElseThrow(() -> new BusinessException(
                         ErrorCode.NOT_FOUND,
                         "Game state not found for this user/game"
                 ));
 
-        existing.updateState(cmd.newStateJson());
+        existing.updateState(cmd.getStateJson());
         return repository.save(existing);
     }
 
